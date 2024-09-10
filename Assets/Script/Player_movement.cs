@@ -60,7 +60,7 @@ public class NewBehaviourScript : MonoBehaviour
             if (isGrounded == true)
             {
             player.GetComponent<Animator>().SetBool("Jump", true);
-            rb.GetComponent<Rigidbody>().AddForce(new Vector3(0, 5, 0), ForceMode.Impulse);
+            rb.GetComponent<Rigidbody>().AddForce(new Vector3(0, 10, 0), ForceMode.Impulse);
             isGrounded = false;
             }
 
