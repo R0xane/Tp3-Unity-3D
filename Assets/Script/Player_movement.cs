@@ -72,7 +72,7 @@ public class NewBehaviourScript : MonoBehaviour
             // Animation de saut
             if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
             {
-                player.GetComponent<Animator>().SetBool("Jump", true);  // Utiliser SetTrigger pour éviter les conflits
+                player.GetComponent<Animator>().SetBool("Jump", true); 
                 rb.AddForce(new Vector3(0, 10, 0), ForceMode.Impulse);
                 isGrounded = false;
             }
@@ -83,7 +83,7 @@ public class NewBehaviourScript : MonoBehaviour
             // Animation d'attaque
             if (Input.GetKeyDown(KeyCode.Mouse0))
             {
-                player.GetComponent<Animator>().SetBool("Attacking", true);  // Utiliser SetTrigger pour l'attaque
+                player.GetComponent<Animator>().SetBool("Attacking", true); 
             }
             else{
                 player.GetComponent<Animator>().SetBool("Attacking", false);
