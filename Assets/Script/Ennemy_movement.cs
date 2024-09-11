@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Assertions.Comparers;
 
 public class EnemyMovement : MonoBehaviour
 {
@@ -11,14 +12,20 @@ public class EnemyMovement : MonoBehaviour
     
     public GameObject ennemy;
 
+    public GameObject playerObject;
+
+    private Damage_player damagePlayerScript;
+
     // Patrolling
     public Vector3 walkPoint;
     bool walkPointSet = false;
     private float walkPointRange = 80f;
 
     // States
-    private float sightRange = 50f;
+    private float sightRange = 20f;
     public bool playerInSightRange;
+    public bool attackplayer;
+
 
     // Speed
     private float walkSpeed = 3.5f;
@@ -33,32 +40,56 @@ public class EnemyMovement : MonoBehaviour
     private float timeAtSamePosition = 0f;
     private float maxTimeAtSamePosition = 2f; // 2 seconds threshold
 
+
+    private floating_health healthBar;
+    public  float maxHealth = 5, health;
+    private float  dead;
+    
+
     private void Awake()
     {
         player = GameObject.Find("Player").transform;
         agent = GetComponent<NavMeshAgent>();
         lastPosition = transform.position;
+        healthBar = GetComponentInChildren<floating_health>();  
+    }
+
+    public void Start()
+    {
+        health = maxHealth;
+        damagePlayerScript = playerObject.GetComponent<Damage_player>();
+        attackplayer = false;
+        dead = 0;
+
     }
 
     private void Update()
     {
-        if (player){
 
-            Debug.Log("Player found");
-        }
-        playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
-
-        if (!playerInSightRange || !CanSeePlayer())
+        if (dead == 0)
         {
-            Patroling();
+
+
+            playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
+
+            if (!playerInSightRange || !CanSeePlayer())
+            {
+                Patroling();
+            }
+            if (playerInSightRange && CanSeePlayer())
+            {
+                ChasePlayer();
+            }
+
+            // Call the stuck detection function every update
+            DetectIfStuck();
         }
-        if (playerInSightRange && CanSeePlayer())
-        {
-            ChasePlayer();
+        else {
+            ennemy.GetComponent<Animator>().SetBool("die", true);
+            ennemy.GetComponent<Animator>().SetBool("isAttacking", false);
+
         }
 
-        // Call the stuck detection function every update
-        DetectIfStuck();
     }
 
     private void Patroling()
@@ -102,7 +133,7 @@ public class EnemyMovement : MonoBehaviour
 
     private void ChasePlayer()
     {
-        agent.speed = runSpeed; // Always run when chasing
+        agent.speed = runSpeed; 
         agent.SetDestination(player.position);
 
         // Look towards the player
@@ -163,10 +194,40 @@ public class EnemyMovement : MonoBehaviour
         if (Vector3.Distance(transform.position, player.position) <= 2f)
         {
             ennemy.GetComponent<Animator>().SetBool("isAttacking", true);
+            attackplayer = true;
         }
         else 
         {
             ennemy.GetComponent<Animator>().SetBool("isAttacking", false);
+            attackplayer = false;
+        }
+    }
+
+    public void TakeDamage(float damage)
+    {
+        if (damagePlayerScript.attack)
+        {
+            //vérifier si le player est tourné vers l'ennemi
+            
+            health -= damage;
+            healthBar.UpdateHealth(health, maxHealth);
+            if (health <= 0)
+            {
+
+                dead = 1;
+            }
+        }
+  
+
+    }
+
+    public void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log("Collision detected");
+        if (collision.gameObject.tag == "Player")
+        {
+            Debug.Log("Player collision detected");
+            TakeDamage(1);
         }
     }
 }
