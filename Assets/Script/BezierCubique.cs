@@ -2,27 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RouteScript : MonoBehaviour
+public class BezierCubique : MonoBehaviour
 {
-    public Transform[] points;
+    public Transform[] points; 
     public LineRenderer lineRenderer;
-    public int numberOfPoints = 100; // Nombre de points pour approximations de la courbe
+    public int numberOfPoints = 100; 
+    private Vector3 positions;
 
-    private void Start()
+    private void Update()
     {
-        if (points.Length < 4)
-        {
-            Debug.LogError("Il faut au moins 4 points pour une courbe de Bézier cubique.");
-            return;
-        }
         
-        if (lineRenderer == null)
-        {
-            Debug.LogError("Le LineRenderer n'est pas assigné.");
-            return;
-        }
 
-        // Générer les points de la courbe et les affecter au LineRenderer
+        
         Vector3[] curvePoints = new Vector3[numberOfPoints];
         for (int i = 0; i < numberOfPoints; i++)
         {
@@ -40,5 +31,20 @@ public class RouteScript : MonoBehaviour
                3 * Mathf.Pow(1 - t, 2) * t * p1 +
                3 * (1 - t) * Mathf.Pow(t, 2) * p2 +
                Mathf.Pow(t, 3) * p3;
+    }
+
+    private void OnDrawGizmos()
+    {
+       
+        for (float t = 0; t <= 1; t += 0.05f)
+        {
+            positions = CalculateCubicBezierPoint(t, points[0].position, points[1].position, points[2].position, points[3].position);
+            Gizmos.DrawSphere(positions, 0.25f); 
+        }
+
+        
+        Gizmos.DrawLine(points[0].position, points[1].position);
+        Gizmos.DrawLine(points[1].position, points[2].position);
+        Gizmos.DrawLine(points[2].position, points[3].position);
     }
 }
