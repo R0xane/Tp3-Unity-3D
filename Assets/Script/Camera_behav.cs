@@ -9,14 +9,18 @@ public class Camera_behav : MonoBehaviour
     public Camera cam;
     private float min = 55f;
     private float max = 95f;
-    private float scrollSpeed = 10f; 
-
+    private float scrollSpeed = 10f;
+    
     private Vector2 turn;
+    private float verticalAngle; // Variable to track vertical angle
+
+    private float maxVerticalAngle = 80f; // Max upward angle
+    private float minVerticalAngle = -10f; // Max downward angle (limiting how far below the player the camera can go)
 
     void Start()
     {
         cam = GetComponent<Camera>();
-        cam.fieldOfView = max; 
+        cam.fieldOfView = max;
     }
 
     void Update()
@@ -33,28 +37,27 @@ public class Camera_behav : MonoBehaviour
         {
             movingCamera_w_player();
         }
-
- 
     }
 
+    private void movingCamera_wt_player()
+    {
+        turn.x = Input.GetAxis("Mouse X") * Time.deltaTime * 10f;
+        turn.y = Input.GetAxis("Mouse Y") * Time.deltaTime * 10f;
 
+        float newVerticalAngle = verticalAngle - turn.y; 
 
-    private void movingCamera_wt_player(){
+        if (newVerticalAngle < maxVerticalAngle && newVerticalAngle > minVerticalAngle)
+        {
+            transform.RotateAround(player.transform.position, transform.right, -turn.y);
+            verticalAngle = newVerticalAngle; 
+        }
 
-        turn.x = Input.GetAxis("Mouse X") * Time.deltaTime * 10f; 
-        turn.y = Input.GetAxis("Mouse Y") * Time.deltaTime * 10f; 
-        
-
-        transform.RotateAround(player.transform.position, Vector3.up, turn.x );
-        transform.RotateAround(player.transform.position, transform.right, -turn.y );
-    
+        transform.RotateAround(player.transform.position, Vector3.up, turn.x);
     }
 
-    private void movingCamera_w_player(){
-        turn.x = Input.GetAxis("Mouse X") * Time.deltaTime * 10f; 
-
+    private void movingCamera_w_player()
+    {
+        turn.x = Input.GetAxis("Mouse X") * Time.deltaTime * 10f;
         player.transform.Rotate(Vector3.up * turn.x, Space.World);
-
-
     }
 }
